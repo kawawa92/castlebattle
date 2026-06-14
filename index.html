@@ -1,63 +1,141 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>城戦履歴ジャンプ</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      background: #222;
-    }
-    .bar {
-      display: flex;
-      gap: 6px;
-      padding: 8px;
-      background: #222;
-    }
-    input {
-      width: 110px;
-      font-size: 16px;
-    }
-    button {
-      font-size: 14px;
-      padding: 4px 12px;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>城戦履歴ジャンプ</title>
+
+<style>
+body {
+    margin: 0;
+    padding: 20px;
+    background: #222;
+    color: white;
+    font-family: sans-serif;
+}
+
+.container {
+    max-width: 350px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+input {
+    font-size: 30px;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    box-sizing: border-box;
+}
+
+button {
+    font-size: 28px;
+    padding: 14px;
+    border-radius: 50px;
+    border: none;
+    background: #ffffff;
+}
+</style>
+
 </head>
+
 <body>
 
-<div class="bar">
-  <input id="date" value="20260614" placeholder="日付">
-  <input id="crp" value="160" placeholder="crp" type="number">
-  <button onclick="openPage()">表示</button>
+<div class="container">
+
+<input 
+    id="date"
+    placeholder="日付 YYYYMMDD">
+
+<input 
+    id="crp"
+    placeholder="crp番号"
+    type="number">
+
+<button onclick="openPage()">
+    表示
+</button>
+
 </div>
 
+
 <script>
-function openPage() {
-  const date = document.getElementById("date").value.trim();
-  const crp = document.getElementById("crp").value.trim();
 
-  if (!crp) {
-    alert("crpを入力してください");
-    return;
-  }
+// 今日の日付を YYYYMMDD で取得
+function getToday() {
+    const d = new Date();
 
-  const useDate = date || "20260614";
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
 
-  const innerUrl =
-    "https://mbga-sp.daisenran.jp/castle_battle/castle_battle_history.aspx" +
-    "?mi=" + encodeURIComponent(useDate) +
-    "&crp=" + encodeURIComponent(crp) +
-    "&rnd=0";
-
-  const fullUrl =
-    "https://g12010355.sp.pf.mbga.jp/?url=" +
-    encodeURIComponent(innerUrl) +
-    "&guid=ON";
-
-  location.href = fullUrl;
+    return `${y}${m}${day}`;
 }
+
+
+// 起動時：保存日付または今日をセット
+window.onload = function() {
+
+    const savedDate = localStorage.getItem("castleDate");
+
+    document.getElementById("date").value =
+        savedDate || getToday();
+
+};
+
+
+// URL生成して移動
+function openPage() {
+
+    const date =
+        document.getElementById("date")
+        .value.trim();
+
+    const crp =
+        document.getElementById("crp")
+        .value.trim();
+
+
+    if (!crp) {
+        alert("crp番号を入力してください");
+        return;
+    }
+
+
+    // 日付保存
+    localStorage.setItem(
+        "castleDate",
+        date
+    );
+
+
+    const innerUrl =
+        "https://mbga-sp.daisenran.jp/castle_battle/castle_battle_history.aspx"
+        + "?mi=" + encodeURIComponent(date)
+        + "&crp=" + encodeURIComponent(crp)
+        + "&rnd=0";
+
+
+    const url =
+        "https://g12010355.sp.pf.mbga.jp/?url="
+        + encodeURIComponent(innerUrl)
+        + "&guid=ON";
+
+
+    location.href = url;
+}
+
+
+// crp入力でEnter
+document.getElementById("crp")
+?.addEventListener("keydown", function(e) {
+
+    if (e.key === "Enter") {
+        openPage();
+    }
+
+});
+
 </script>
 
 </body>
