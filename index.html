@@ -7,55 +7,35 @@
     body {
       margin: 0;
       font-family: sans-serif;
-      background: #111;
-      color: white;
+      background: #222;
     }
     .bar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 44px;
       display: flex;
       gap: 6px;
-      padding: 6px;
-      box-sizing: border-box;
+      padding: 8px;
       background: #222;
-      z-index: 9999;
     }
     input {
-      width: 100px;
-      font-size: 14px;
+      width: 110px;
+      font-size: 16px;
     }
     button {
       font-size: 14px;
-    }
-    iframe {
-      position: fixed;
-      top: 44px;
-      left: 0;
-      width: 100%;
-      height: calc(100vh - 44px);
-      border: 0;
-      background: white;
+      padding: 4px 12px;
     }
   </style>
 </head>
 <body>
 
 <div class="bar">
-  <input id="date" placeholder="日付 20260614">
-  <input id="crp" placeholder="crp" type="number">
+  <input id="date" value="20260614" placeholder="日付">
+  <input id="crp" value="160" placeholder="crp" type="number">
   <button onclick="openPage()">表示</button>
 </div>
 
-<iframe id="view"></iframe>
-
 <script>
-let currentDate = "20260614";
-
 function openPage() {
-  const dateInput = document.getElementById("date").value.trim();
+  const date = document.getElementById("date").value.trim();
   const crp = document.getElementById("crp").value.trim();
 
   if (!crp) {
@@ -63,13 +43,11 @@ function openPage() {
     return;
   }
 
-  if (dateInput) {
-    currentDate = dateInput;
-  }
+  const useDate = date || "20260614";
 
   const innerUrl =
     "https://mbga-sp.daisenran.jp/castle_battle/castle_battle_history.aspx" +
-    "?mi=" + encodeURIComponent(currentDate) +
+    "?mi=" + encodeURIComponent(useDate) +
     "&crp=" + encodeURIComponent(crp) +
     "&rnd=0";
 
@@ -78,7 +56,7 @@ function openPage() {
     encodeURIComponent(innerUrl) +
     "&guid=ON";
 
-  document.getElementById("view").src = fullUrl;
+  location.href = fullUrl;
 }
 </script>
 
