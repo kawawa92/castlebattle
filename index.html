@@ -14,7 +14,7 @@ body {
 }
 
 .container {
-    max-width: 350px;
+    max-width: 380px;
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -26,88 +26,122 @@ input {
     border-radius: 10px;
     border: none;
     box-sizing: border-box;
+    width: 100%;
 }
 
 button {
-    font-size: 28px;
+    font-size: 26px;
     padding: 14px;
     border-radius: 50px;
     border: none;
     background: #ffffff;
 }
-</style>
 
+.row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.row4 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 8px;
+}
+
+.small-btn {
+    font-size: 22px;
+    padding: 12px 6px;
+}
+</style>
 </head>
 
 <body>
 
 <div class="container">
 
-<input 
+<input
     id="date"
-    placeholder="日付 YYYYMMDD">
+    placeholder="日付 YYYYMMDD"
+    inputmode="numeric">
 
-<input 
+<input
     id="crp"
     placeholder="crp番号"
-    type="number">
+    type="number"
+    inputmode="numeric">
 
-<button onclick="openPage()">
-    表示
-</button>
+<div class="row4">
+    <button class="small-btn" onclick="changeCrp(-10)">−10</button>
+    <button class="small-btn" onclick="changeCrp(-1)">−1</button>
+    <button class="small-btn" onclick="changeCrp(1)">＋1</button>
+    <button class="small-btn" onclick="changeCrp(10)">＋10</button>
+</div>
+
+<button onclick="openPage()">表示</button>
 
 </div>
 
-
 <script>
-
-// 今日の日付を YYYYMMDD で取得
 function getToday() {
     const d = new Date();
-
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, "0");
     const day = String(d.getDate()).padStart(2, "0");
-
     return `${y}${m}${day}`;
 }
 
-
-// 起動時：保存日付または今日をセット
 window.onload = function() {
-
     const savedDate = localStorage.getItem("castleDate");
+    const savedCrp = localStorage.getItem("castleCrp");
 
-    document.getElementById("date").value =
-        savedDate || getToday();
+    document.getElementById("date").value = savedDate || getToday();
 
+    if (savedCrp) {
+        document.getElementById("crp").value = savedCrp;
+    }
+
+    document.getElementById("date").focus();
 };
 
+function saveValues() {
+    const date = document.getElementById("date").value.trim();
+    const crp = document.getElementById("crp").value.trim();
 
-// URL生成して移動
-function openPage() {
+    if (date) {
+        localStorage.setItem("castleDate", date);
+    }
 
-    const date =
-        document.getElementById("date")
-        .value.trim();
+    if (crp) {
+        localStorage.setItem("castleCrp", crp);
+    }
+}
 
-    const crp =
-        document.getElementById("crp")
-        .value.trim();
+function changeCrp(amount) {
+    const crpInput = document.getElementById("crp");
+    const current = Number(crpInput.value || 0);
+    const next = current + amount;
 
-
-    if (!crp) {
-        alert("crp番号を入力してください");
+    if (next < 0) {
         return;
     }
 
+    crpInput.value = next;
+    saveValues();
+}
 
-    // 日付保存
-    localStorage.setItem(
-        "castleDate",
-        date
-    );
+function openPage() {
+    const date = document.getElementById("date").value.trim() || getToday();
+    const crp = document.getElementById("crp").value.trim();
 
+    if (!crp) {
+        alert("crp番号を入力してください");
+        document.getElementById("crp").focus();
+        return;
+    }
+
+    localStorage.setItem("castleDate", date);
+    localStorage.setItem("castleCrp", crp);
 
     const innerUrl =
         "https://mbga-sp.daisenran.jp/castle_battle/castle_battle_history.aspx"
@@ -115,27 +149,29 @@ function openPage() {
         + "&crp=" + encodeURIComponent(crp)
         + "&rnd=0";
 
-
     const url =
         "https://g12010355.sp.pf.mbga.jp/?url="
         + encodeURIComponent(innerUrl)
         + "&guid=ON";
 
-
     location.href = url;
 }
 
-
-// crp入力でEnter
-document.getElementById("crp")
-?.addEventListener("keydown", function(e) {
-
+document.getElementById("date").addEventListener("keydown", function(e) {
     if (e.key === "Enter") {
-        openPage();
+        e.preventDefault();
+        saveValues();
+        document.getElementById("crp").focus();
+        document.getElementById("crp").select();
     }
-
 });
 
+document.getElementById("crp").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        openPage();
+    }
+});
 </script>
 
 </body>
